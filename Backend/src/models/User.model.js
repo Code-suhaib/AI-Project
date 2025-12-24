@@ -1,54 +1,47 @@
 const mongoose = require("mongoose");
 
-const UserSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true
     },
-
     email: {
       type: String,
       required: true,
       unique: true
     },
-
     password: {
       type: String,
       required: true
     },
 
-    education: {
-      degree: String,
-      branch: String,
-      year: Number
+    // 👇 NEW FIELDS FOR AI RECOMMENDATION
+    degree: {
+      type: String
     },
-
-    skills: {
-      type: [String],
-      default: []
+    skills: [
+      {
+        type: String
+      }
+    ],
+    interests: [
+      {
+        type: String
+      }
+    ],
+    preferredLocation: {
+      type: String
     },
-
-    interests: {
-      type: [String],
-      default: []
-    },
-
-    preferences: {
-      internshipType: String,
-      location: String,
-      paidOnly: Boolean
-    },
-
-    experienceLevel: {
+    internshipType: {
       type: String,
-      enum: ["Beginner", "Intermediate", "Advanced"],
-      default: "Beginner"
+      enum: ["remote", "on-site", "hybrid"]
+    },
+    careerGoal: {
+      type: String
     }
   },
-  {
-    timestamps: true
-  }
+  { timestamps: true }
 );
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model("User", userSchema);

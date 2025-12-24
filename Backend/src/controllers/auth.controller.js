@@ -47,4 +47,69 @@ const registerUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser };
+
+
+/**----------------------------------------------------------------------------------------------- */
+
+
+
+const jwt = require("jsonwebtoken");
+
+/**
+ * @desc   Login user
+ * @route  POST /auth/login
+ */
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1. Validate input
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Please provide email and password"
+      });
+    }
+
+    // 2. Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid credentials"
+      });
+    }
+
+    // 3. Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid credentials"
+      });
+    }
+
+    // 4. Generate JWT
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // 5. Send response
+    res.json({
+      message: "Login successful",
+      token
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({
+      message: "Server error"
+    });
+  }
+};
+
+
+module.exports = { registerUser, loginUser };
+
+
+
+/**----------------------------------------------------------------------------------------------- */
+
