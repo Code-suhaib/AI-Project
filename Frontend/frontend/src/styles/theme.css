@@ -1,0 +1,32 @@
+body {
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color: #e5e7eb;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+}
+
+.btn-lux {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  color: white;
+  padding: 12px;
+  font-weight: 500;
+}
+
+.btn-lux:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(99,102,241,0.4);
+}
+
+.form-control {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+}
