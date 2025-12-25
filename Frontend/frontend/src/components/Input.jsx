@@ -1,12 +1,12 @@
 export default function Input({ icon, ...props }) {
   return (
-    <div className="input-group mb-3">
-      {icon && (
-        <span className="input-group-text bg-transparent text-primary">
+    <div className="mb-3">
+      <div className="input-group">
+        <span className="input-group-text">
           <i className={`bi ${icon}`}></i>
         </span>
-      )}
-      <input className="form-control" {...props} />
+        <input className="form-control" {...props} />
+      </div>
     </div>
   );
 }
