@@ -25,14 +25,11 @@ export default function Register() {
       setEmail("");
       setPassword("");
 
-      // Redirect after short delay
       setTimeout(() => {
         window.location.href = "/";
       }, 1500);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Registration failed"
-      );
+      setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -40,8 +37,12 @@ export default function Register() {
 
   return (
     <AuthLayout>
-      <div className="card shadow p-4" style={{ maxWidth: "420px", width: "100%" }}>
-        <h3 className="text-center mb-3">Create Account</h3>
+      <div className="card shadow p-4 auth-card" style={{ maxWidth: "420px", width: "100%" }}>
+        <h3 className="text-center mb-3">
+          <i className="bi bi-person-plus-fill me-2"></i>
+          Create Account
+        </h3>
+
         <p className="text-center text-muted mb-4">
           Start your AI-powered internship journey
         </p>
@@ -50,18 +51,21 @@ export default function Register() {
         {success && <div className="alert alert-success py-2">{success}</div>}
 
         <Input
+          icon="bi-person"
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
 
         <Input
+          icon="bi-envelope"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
         <Input
+          icon="bi-lock"
           type="password"
           placeholder="Password"
           value={password}
@@ -69,7 +73,14 @@ export default function Register() {
         />
 
         <Button onClick={handleRegister} disabled={loading}>
-          {loading ? "Creating..." : "Create Account"}
+          {loading ? (
+            "Creating..."
+          ) : (
+            <>
+              <i className="bi bi-check-circle-fill me-2"></i>
+              Create Account
+            </>
+          )}
         </Button>
       </div>
     </AuthLayout>
