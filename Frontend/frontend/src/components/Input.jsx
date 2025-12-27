@@ -1,12 +1,24 @@
-export default function Input({ icon, ...props }) {
+export default function Input({
+  icon,
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+}) {
   return (
-    <div className="mb-3">
-      <div className="input-group">
-        <span className="input-group-text">
+    <div className="input-group mb-3">
+      {icon && (
+        <span className="input-group-text bg-light">
           <i className={`bi ${icon}`}></i>
         </span>
-        <input className="form-control" {...props} />
-      </div>
+      )}
+      <input
+        type={type}
+        className="form-control"
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+      />
     </div>
   );
 }

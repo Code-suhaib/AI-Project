@@ -18,11 +18,9 @@ export default function Login() {
       const res = await loginUser({ email, password });
 
       localStorage.setItem("token", res.data.token);
-      window.location.href = "/dashboard";
+      window.location.href = "/recommendations";
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Login failed. Try again."
-      );
+      setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -30,15 +28,20 @@ export default function Login() {
 
   return (
     <AuthLayout>
-      <div className="card shadow p-4" style={{ width: "100%", maxWidth: "420px" }}>
-        <h3 className="text-center mb-3">AI Internship Finder</h3>
+      <div
+        className="card shadow p-4 auth-card"
+        style={{ maxWidth: "420px", width: "100%" }}
+      >
+        <h3 className="text-center mb-3">
+          <i className="bi bi-shield-lock-fill me-2"></i>
+          Welcome Back
+        </h3>
+
         <p className="text-center text-muted mb-4">
-          Sign in to continue
+          Login to continue your AI internship journey
         </p>
 
-        {error && (
-          <div className="alert alert-danger py-2">{error}</div>
-        )}
+        {error && <div className="alert alert-danger py-2">{error}</div>}
 
         <Input
           icon="bi-envelope"
@@ -56,8 +59,22 @@ export default function Login() {
         />
 
         <Button onClick={handleLogin} disabled={loading}>
-          {loading ? "Signing in..." : "Login"}
+          {loading ? (
+            "Logging in..."
+          ) : (
+            <>
+              <i className="bi bi-box-arrow-in-right me-2"></i>
+              Login
+            </>
+          )}
         </Button>
+
+        <p className="text-center mt-3 mb-0 text-muted">
+          Don’t have an account?{" "}
+          <a href="/register" className="text-decoration-none fw-semibold">
+            Register
+          </a>
+        </p>
       </div>
     </AuthLayout>
   );
