@@ -1,22 +1,26 @@
 const axios = require("axios");
 
-const fetchInternships = async () => {
-  const options = {
-    method: "GET",
-    url: "https://jsearch.p.rapidapi.com/search",
-    params: {
-      query: "internship",
-      page: "1",
-      num_pages: "1"
-    },
-    headers: {
-      "X-RapidAPI-Key": process.env.RAPIDAPI_KEY,
-      "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
-    }
-  };
+const fetchFromRapidAPI = async ({ query, location }) => {
+  try {
+    const response = await axios.get(process.env.RAPIDAPI_URL, {
+      headers: {
+        "X-RapidAPI-Key": process.env.RAPIDAPI_KEY,
+        "X-RapidAPI-Host": process.env.RAPIDAPI_HOST,
+      },
+      params: {
+        query,
+        page: 1,
+        num_pages: 1,
+        country: location || "in",
+        date_posted: "month",
+      },
+    });
 
-  const response = await axios.request(options);
-  return response.data.data;
+    return response.data?.data || [];
+  } catch (error) {
+    console.error("🔥 RapidAPI FAILED:", error.response?.data || error.message);
+    throw new Error("RapidAPI failed");
+  }
 };
 
-module.exports = { fetchInternships };
+module.exports = { fetchFromRapidAPI };
