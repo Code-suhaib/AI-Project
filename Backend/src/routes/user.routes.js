@@ -1,13 +1,10 @@
-const express = require("express");
+import express from "express";
+
 const router = express.Router();
 
-const { protect } = require("../middleware/auth.middleware");
-const { updateProfile } = require("../controllers/user.controller");
-
-router.get("/me", protect, (req, res) => {
-  res.json(req.user);
+// example route (adjust if you already have controllers)
+router.get("/", (req, res) => {
+  res.json({ message: "User route working ✅" });
 });
 
-router.put("/profile", protect, updateProfile);
-
-module.exports = router;
+export default router;

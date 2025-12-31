@@ -1,8 +1,8 @@
-const express = require("express");
-const router = express.Router();
-const { protect } = require("../middleware/auth.middleware");
-const { recommendInternships } = require("../controllers/recommendation.controller");
+import { Router } from "express";
+import { recommendInternships } from "../controllers/recommendation.controller.js";
 
-router.get("/", protect, recommendInternships);
+const router = Router();
 
-module.exports = router;
+router.get("/", recommendInternships);
+
+export default router;

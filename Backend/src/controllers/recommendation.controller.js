@@ -1,11 +1,10 @@
-const { fetchInternships } = require("../services/job.service");
+import { fetchInternships } from "../services/job.service.js";
 
-const recommendInternships = async (req, res) => {
+export const recommendInternships = async (req, res) => {
   try {
     const user = req.user;
     const jobs = await fetchInternships();
 
-    // 🔑 Build matching keywords
     const keywords = [
       ...(user.skills || []),
       ...(user.interests || []),
@@ -13,27 +12,24 @@ const recommendInternships = async (req, res) => {
       "developer",
       "engineer",
       "cloud",
-      "ai"
-    ].map(k => k.toLowerCase());
+      "ai",
+    ].map((k) => k.toLowerCase());
 
-    // 🧠 Rule-based AI matching
-    const recommendations = jobs.filter(job => {
+    const recommendations = jobs.filter((job) => {
       const text = `
         ${job.job_title || ""}
         ${job.job_description || ""}
       `.toLowerCase();
 
-      return keywords.some(keyword => text.includes(keyword));
+      return keywords.some((keyword) => text.includes(keyword));
     });
 
     res.json({
       total: recommendations.length,
-      recommendations
+      recommendations,
     });
   } catch (error) {
     console.error("Recommendation error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
-
-module.exports = { recommendInternships };
