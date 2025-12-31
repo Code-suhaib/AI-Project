@@ -1,51 +1,40 @@
-const Internship = require("../models/Internship.model");
-const { fetchFromRapidAPI } = require("../services/job.service");
+import axios from "axios";
+import SearchHistory from "../models/SearchHistory.js";
 
-const searchInternships = async (req, res) => {
+export const searchInternships = async (req, res) => {
+  const { role, skills, location } = req.body;
+
   try {
-    let { role, skills, location } = req.body;
+    // 🔹 Call RapidAPI
+    const rapidRes = await axios.get(
+      "https://internships-api.p.rapidapi.com/search",
+      {
+        headers: {
+          "X-RapidAPI-Key": process.env.RAPID_API_KEY,
+          "X-RapidAPI-Host": "internships-api.p.rapidapi.com",
+        },
+        params: {
+          role,
+          skills: skills?.join(","),
+          location,
+        },
+      }
+    );
 
-    if (!role || !skills) {
-      return res.status(400).json({ message: "Role and skills required" });
-    }
+    const jobs = rapidRes.data.jobs || [];
 
-    // ✅ Normalize skills (string → array)
-    if (typeof skills === "string") {
-      skills = skills.split(",").map(s => s.trim());
-    }
-
-    if (!Array.isArray(skills)) {
-      return res.status(400).json({ message: "Skills must be array or string" });
-    }
-
-    const jobs = await fetchFromRapidAPI({
-      query: `${role} ${skills.join(" ")}`,
+    // 🔹 Save search history (AI-ready)
+    await SearchHistory.create({
+      userId: req.user.id,
+      role,
+      skills,
       location,
+      results: jobs,
     });
 
-    if (!Array.isArray(jobs)) {
-      return res.json({ jobs: [] });
-    }
-
-    const internships = jobs.map((job) => ({
-      title: job.job_title || "Internship",
-      company: job.company_name || "Unknown",
-      location: job.job_location || "Remote",
-      url: job.job_apply_link || "#",
-      source: "RapidAPI",
-    }));
-
-    try {
-      await Internship.insertMany(internships, { ordered: false });
-    } catch (dbErr) {
-      console.log("DB insert skipped:", dbErr.message);
-    }
-
-    res.json({ jobs: internships });
+    res.status(200).json({ jobs });
   } catch (error) {
-    console.error("Search error FULL:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Internship search failed:", error);
+    res.status(500).json({ message: "Failed to fetch internships" });
   }
 };
-
-module.exports = { searchInternships };

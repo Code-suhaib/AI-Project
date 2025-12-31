@@ -1,47 +1,34 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true
+      required: true,
     },
     email: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     password: {
       type: String,
-      required: true
+      required: true,
     },
 
     // 👇 NEW FIELDS FOR AI RECOMMENDATION
-    degree: {
-      type: String
-    },
-    skills: [
-      {
-        type: String
-      }
-    ],
-    interests: [
-      {
-        type: String
-      }
-    ],
-    preferredLocation: {
-      type: String
-    },
+    degree: String,
+    skills: [String],
+    interests: [String],
+    preferredLocation: String,
     internshipType: {
       type: String,
-      enum: ["remote", "on-site", "hybrid"]
+      enum: ["remote", "on-site", "hybrid"],
     },
-    careerGoal: {
-      type: String
-    }
+    careerGoal: String,
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;
