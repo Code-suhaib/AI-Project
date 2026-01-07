@@ -6,7 +6,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import Recommendations from "./pages/Recommendations";
 import Dashboard from "./pages/Dashboard";
-
+import MyActivity from "./pages/MyActivity";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./utils/ProtectedRoute";
 
@@ -26,6 +26,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/recommendations" element={<Recommendations />} />
+          <Route path="/activity" element={<MyActivity />} />
         </Route>
       </Routes>
     </BrowserRouter>

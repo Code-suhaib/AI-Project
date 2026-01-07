@@ -92,7 +92,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="mt-4">
+        {/* ACTION BUTTONS */}
+        <div className="mt-4 d-flex gap-3 flex-wrap">
           <Button onClick={fetchInternships} disabled={loading || !isFormValid}>
             {loading ? (
               "Searching internships..."
@@ -103,6 +104,11 @@ export default function Dashboard() {
               </>
             )}
           </Button>
+
+          <Link to="/activity" className="btn btn-outline-light">
+            <i className="bi bi-clock-history me-2"></i>
+            My Activity
+          </Link>
         </div>
       </div>
 

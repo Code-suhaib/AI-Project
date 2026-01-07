@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import activityRoutes from "./routes/activity.routes.js";
+
 
 import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -16,6 +18,8 @@ app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/recommendations", recommendationRoutes);
 app.use("/internships", internshipRoutes);
+app.use("/activity", activityRoutes);
+
 
 // Test route
 app.get("/", (req, res) => {
