@@ -20,8 +20,8 @@ export default function Navbar() {
           {token ? (
             <>
               <li className="nav-item">
-                <Link className="nav-link" to="/profile">
-                  Profile
+                <Link className="nav-link" to="/find-internships">
+                  Find-internship
                 </Link>
               </li>
 

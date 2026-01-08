@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AuthLayout from "../layouts/AuthLayout";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { loginUser } from "../api/auth.api";
 
 export default function Login() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,8 +20,11 @@ export default function Login() {
 
       const res = await loginUser({ email, password });
 
+      // ✅ store token
       localStorage.setItem("token", res.data.token);
-      window.location.href = "/recommendations";
+
+      // ✅ redirect to Find Internships
+      navigate("/find-internships");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     } finally {

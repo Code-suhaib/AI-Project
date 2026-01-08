@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Profile from "./pages/Profile";
+
 import Recommendations from "./pages/Recommendations";
 import Dashboard from "./pages/Dashboard";
 import MyActivity from "./pages/MyActivity";
@@ -23,8 +23,10 @@ export default function App() {
 
         {/* 🔐 Protected Routes */}
         <Route element={<ProtectedRoute />}>
+          {/* Dashboard = Find Internships */}
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/find-internships" element={<Dashboard />} />
+
           <Route path="/recommendations" element={<Recommendations />} />
           <Route path="/activity" element={<MyActivity />} />
         </Route>
