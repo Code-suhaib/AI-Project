@@ -1,45 +1,67 @@
 import express from "express";
+import uploadResume from "../middleware/uploadResume.middleware.js";
 import User from "../models/User.model.js";
-import authMiddleware from "../middleware/auth.middleware.js";
+import auth from "../middleware/auth.middleware.js";
+
 
 const router = express.Router();
 
 /**
- * GET current user profile
- * GET /users/me
+ * @route   POST /users/upload-resume
+ * @desc    Upload resume (PDF/DOCX) and store in MongoDB
+ * @access  Private
  */
-router.get("/me", authMiddleware, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select("-password");
+router.post(
+  "/upload-resume",
+  auth,
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+  // 1️⃣ Check if resume already exists
+  async (req, res, next) => {
+    try {
+      const user = await User.findById(req.user.id);
+
+      if (user?.resumeFile?.data) {
+        return res.status(400).json({
+          message: "Resume already uploaded. Delete it before uploading a new one."
+        });
+      }
+
+      next();
+    } catch (err) {
+      res.status(500).json({ message: "Server error" });
     }
+  },
 
-    res.json(user);
-  } catch (error) {
-    console.error("Get profile error:", error);
-    res.status(500).json({ message: "Server error" });
+  // 2️⃣ Multer upload
+  uploadResume.single("resume"),
+
+  // 3️⃣ Save resume in MongoDB
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      await User.findByIdAndUpdate(req.user.id, {
+        resumeFile: {
+          data: req.file.buffer,
+          contentType: req.file.mimetype,
+        },
+        resumeMeta: {
+          fileName: req.file.originalname,
+          mimeType: req.file.mimetype,
+          size: req.file.size,
+          uploadedAt: new Date(),
+        },
+      });
+
+      res.status(200).json({
+        message: "Resume uploaded successfully and stored in MongoDB ✅",
+      });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   }
-});
-
-/**
- * UPDATE user profile
- * PUT /users/me
- */
-router.put("/me", authMiddleware, async (req, res) => {
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      req.body,
-      { new: true }
-    ).select("-password");
-
-    res.json(updatedUser);
-  } catch (error) {
-    console.error("Update profile error:", error);
-    res.status(500).json({ message: "Failed to save profile" });
-  }
-});
+);
 
 export default router;

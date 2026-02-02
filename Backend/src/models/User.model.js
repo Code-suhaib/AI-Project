@@ -28,10 +28,38 @@ const userSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+
+    // 👇 EXISTING (unchanged)
+    resumeUrl: {
+      type: String,
+      default: null,
+    },
+
+    // ✅ Resume metadata
+    resumeMeta: {
+      fileName: {
+        type: String,
+      },
+      mimeType: {
+        type: String,
+      },
+      size: {
+        type: Number,
+      },
+      uploadedAt: {
+        type: Date,
+      },
+    },
+
+    // ✅ Resume file stored in MongoDB
+    resumeFile: {
+      data: Buffer,
+      contentType: String,
+    },
   },
   { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);
 
-export default User; // ✅ VERY IMPORTANT
+export default User;
