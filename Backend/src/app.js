@@ -4,6 +4,7 @@ import multer from "multer";
 
 import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import internshipRoutes from "./routes/internship.routes.js";
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 // Routes
 app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
+app.use("/internships", internshipRoutes);
 
 // Test route
 app.get("/", (req, res) => {

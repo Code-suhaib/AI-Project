@@ -8,6 +8,7 @@ import Recommendations from "./pages/Recommendations";
 import Dashboard from "./pages/Dashboard";
 import MyActivity from "./pages/MyActivity";
 import Navbar from "./components/Navbar";
+import UploadResume from "./pages/UploadResume";
 import ProtectedRoute from "./utils/ProtectedRoute";
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
 
           <Route path="/recommendations" element={<Recommendations />} />
           <Route path="/activity" element={<MyActivity />} />
+           <Route path="/upload-resume" element={<UploadResume />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -21,7 +21,7 @@ export default function Navbar() {
             <>
               <li className="nav-item">
                 <Link className="nav-link" to="/find-internships">
-                  Find-internship
+                  Find-Internship
                 </Link>
               </li>
 
@@ -31,9 +31,16 @@ export default function Navbar() {
                 </Link>
               </li>
 
+              {/* ✅ NEW Resume Upload Link */}
+              <li className="nav-item">
+                <Link className="nav-link" to="/upload-resume">
+                  Upload Resume
+                </Link>
+              </li>
+
               <li className="nav-item">
                 <button
-                  className="btn btn-outline-light ms-2"
+                  className="btn btn-outline-light ms-3"
                   onClick={handleLogout}
                 >
                   Logout
