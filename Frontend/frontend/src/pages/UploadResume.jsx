@@ -13,7 +13,7 @@ export default function UploadResume() {
     Authorization: `Bearer ${token}`,
   };
 
-  // ✅ Fetch resume metadata on load
+  // Fetch resume metadata
   useEffect(() => {
     fetchResumeMeta();
   }, []);
@@ -30,7 +30,7 @@ export default function UploadResume() {
     }
   };
 
-  // ✅ Upload Resume
+  // Upload / Replace Resume
   const handleUpload = async (e) => {
     e.preventDefault();
 
@@ -58,7 +58,7 @@ export default function UploadResume() {
 
       setMessage(res.data.message);
       setFile(null);
-      fetchResumeMeta(); // refresh after upload
+      fetchResumeMeta();
     } catch (err) {
       setMessage(
         err.response?.data?.message || "Upload failed. Try again."
@@ -68,7 +68,7 @@ export default function UploadResume() {
     }
   };
 
-  // ✅ Delete Resume
+  // Delete Resume
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete your resume?"))
       return;
@@ -86,7 +86,7 @@ export default function UploadResume() {
     }
   };
 
-  // ✅ View Resume
+  // View Resume
   const handleView = () => {
     window.open(
       "http://localhost:5000/users/resume",
@@ -94,10 +94,12 @@ export default function UploadResume() {
     );
   };
 
+  const resumeExists = resumeMeta && resumeMeta.fileName;
+
   return (
     <div className="container mt-5">
       <div className="card shadow p-4">
-        <h3 className="mb-3 text-center">Resume Manager</h3>
+        <h3 className="mb-4 text-center">Resume Manager</h3>
 
         {message && (
           <div
@@ -111,54 +113,70 @@ export default function UploadResume() {
           </div>
         )}
 
-        {resumeMeta ? (
-          <>
-            <div className="mb-3">
-              <p><strong>File:</strong> {resumeMeta.fileName}</p>
-              <p><strong>Size:</strong> {(resumeMeta.size / 1024).toFixed(2)} KB</p>
-              <p>
-                <strong>Uploaded:</strong>{" "}
-                {new Date(resumeMeta.uploadedAt).toLocaleString()}
-              </p>
-            </div>
+        {/* Resume Info */}
+        {resumeExists && (
+          <div className="mb-4">
+            <p><strong>File:</strong> {resumeMeta.fileName}</p>
 
-            <div className="d-flex gap-2">
-              <button
-                className="btn btn-primary w-100"
-                onClick={handleView}
-              >
-                View Resume
-              </button>
+            <p>
+              <strong>Size:</strong>{" "}
+              {resumeMeta.size
+                ? (resumeMeta.size / 1024).toFixed(2) + " KB"
+                : "Unknown"}
+            </p>
 
-              <button
-                className="btn btn-danger w-100"
-                onClick={handleDelete}
-              >
-                Delete Resume
-              </button>
-            </div>
-          </>
-        ) : (
-          <form onSubmit={handleUpload}>
-            <div className="mb-3">
-              <input
-                type="file"
-                className="form-control"
-                accept=".pdf,.doc,.docx"
-                onChange={(e) => setFile(e.target.files[0])}
-              />
-            </div>
+            <p>
+              <strong>Uploaded:</strong>{" "}
+              {resumeMeta.uploadedAt
+                ? new Date(resumeMeta.uploadedAt).toLocaleString()
+                : "Unknown"}
+            </p>
+          </div>
+        )}
 
-            <div className="d-grid">
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={loading}
-              >
-                {loading ? "Uploading..." : "Upload Resume"}
-              </button>
-            </div>
-          </form>
+        {/* Upload / Replace Form */}
+        <form onSubmit={handleUpload} className="mb-3">
+          <div className="mb-3">
+            <input
+              type="file"
+              className="form-control"
+              accept=".pdf,.doc,.docx"
+              onChange={(e) => setFile(e.target.files[0])}
+            />
+          </div>
+
+          <div className="d-grid">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading
+                ? "Uploading..."
+                : resumeExists
+                ? "Replace Resume"
+                : "Upload Resume"}
+            </button>
+          </div>
+        </form>
+
+        {/* View / Delete Buttons */}
+        {resumeExists && (
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-success w-100"
+              onClick={handleView}
+            >
+              View Resume
+            </button>
+
+            <button
+              className="btn btn-danger w-100"
+              onClick={handleDelete}
+            >
+              Delete Resume
+            </button>
+          </div>
         )}
       </div>
     </div>
