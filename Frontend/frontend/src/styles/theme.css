@@ -25,11 +25,59 @@ body {
   box-shadow: 0 12px 30px rgba(99,102,241,0.4);
 }
 
-.form-control {
+.form-control,
+.form-select,
+.form-label {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.2);
-  color: white;
+  color: #fff;
 }
+
+.form-control::placeholder,
+.form-select::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+  opacity: 1;
+}
+
+.form-control:focus,
+.form-select:focus {
+  color: #111827 !important;
+  background: #fff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.form-control:focus::placeholder,
+.form-select:focus::placeholder {
+  color: rgba(17, 24, 39, 0.65) !important;
+}
+
+.input-group-text.bg-light {
+  color: #111827;
+}
+
+.bg-light,
+.bg-white,
+.alert-light,
+.text-bg-light,
+.card.bg-light,
+.card.bg-white {
+  color: #111827 !important;
+}
+
+.bg-dark,
+.text-bg-dark,
+.modal-content.bg-dark,
+.card.bg-dark {
+  color: #f8fafc !important;
+}
+
+.card.bg-light .text-light,
+.card.bg-light .text-white,
+.card.bg-white .text-light,
+.card.bg-white .text-white {
+  color: #111827 !important;
+}
+
 .auth-card {
   box-shadow: 0 0 40px rgba(100, 100, 255, 0.25);
   border-radius: 16px;
