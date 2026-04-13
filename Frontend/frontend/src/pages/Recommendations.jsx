@@ -51,7 +51,7 @@ export default function Recommendations() {
           <i className="bi bi-stars me-2 text-warning"></i>
           AI Internship Recommendations
         </h2>
-        <p className="text-muted">
+        <p className="text-light opacity-75">
           Personalized suggestions powered by Amazon Bedrock
         </p>
       </div>
@@ -135,7 +135,7 @@ export default function Recommendations() {
       {/* Results */}
       <div className="row">
         {recommendations.length === 0 && !loading && (
-          <p className="text-muted text-center">
+          <p className="text-light opacity-75 text-center">
             Your personalized recommendations will appear here ✨
           </p>
         )}
