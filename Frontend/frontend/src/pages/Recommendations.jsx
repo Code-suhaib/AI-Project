@@ -29,7 +29,6 @@ export default function Recommendations() {
       setError("");
       setRecommendations([]);
 
-      // 🔮 Later connect this to Amazon Bedrock / ML API
       const res = await axios.post("/recommendations/ai", {
         ...form,
         skills: form.skills.split(",").map((s) => s.trim()),
@@ -37,7 +36,6 @@ export default function Recommendations() {
 
       setRecommendations(res.data.recommendations || []);
     } catch (err) {
-      console.error(err);
       setError("AI recommendation failed. Try again.");
     } finally {
       setLoading(false);
@@ -45,113 +43,167 @@ export default function Recommendations() {
   };
 
   return (
-    <div className="container py-5">
-      <div className="text-center mb-4">
-        <h2 className="fw-bold">
-          <i className="bi bi-stars me-2 text-warning"></i>
-          AI Internship Recommendations
-        </h2>
-        <p className="text-muted">
-          Personalized suggestions powered by Amazon Bedrock
-        </p>
-      </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #eef2ff, #e0f7fa, #f8fafc)",
+      }}
+    >
+      <div className="container py-5">
 
-      {error && (
-        <div className="alert alert-danger text-center">{error}</div>
-      )}
-
-      {/* Input Card */}
-      <div className="card shadow-lg border-0 p-4 mb-5">
-        <div className="row g-3">
-          <div className="col-md-6">
-            <label className="form-label">Target Role</label>
-            <input
-              className="form-control"
-              name="role"
-              placeholder="Frontend Developer"
-              value={form.role}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="col-md-6">
-            <label className="form-label">Skills</label>
-            <input
-              className="form-control"
-              name="skills"
-              placeholder="React, AWS, Node"
-              value={form.skills}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="col-md-4">
-            <label className="form-label">Experience Level</label>
-            <select
-              className="form-select"
-              name="experience"
-              value={form.experience}
-              onChange={handleChange}
-            >
-              <option value="">Select</option>
-              <option>Beginner</option>
-              <option>Intermediate</option>
-              <option>Advanced</option>
-            </select>
-          </div>
-
-          <div className="col-md-4">
-            <label className="form-label">Area of Interest</label>
-            <input
-              className="form-control"
-              name="interests"
-              placeholder="Web, AI, Cloud"
-              value={form.interests}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="col-md-4">
-            <label className="form-label">Career Goal</label>
-            <input
-              className="form-control"
-              name="goal"
-              placeholder="Full-time role, Startup"
-              value={form.goal}
-              onChange={handleChange}
-            />
-          </div>
+        {/* HEADER */}
+        <div className="text-center mb-5">
+          <h2 className="fw-bold" style={{ color: "#1e293b" }}>
+            🤖 AI Internship Recommendations
+          </h2>
+          <p style={{ color: "#64748b" }}>
+            Smart suggestions powered by AI based on your profile
+          </p>
         </div>
 
-        <button
-          className="btn btn-dark btn-lg mt-4 w-100"
-          onClick={getRecommendations}
-          disabled={loading}
-        >
-          {loading ? "Analyzing Profile..." : "Get AI Recommendations"}
-        </button>
-      </div>
-
-      {/* Results */}
-      <div className="row">
-        {recommendations.length === 0 && !loading && (
-          <p className="text-muted text-center">
-            Your personalized recommendations will appear here ✨
-          </p>
+        {/* ERROR */}
+        {error && (
+          <div className="alert alert-danger text-center">{error}</div>
         )}
 
-        {recommendations.map((rec, i) => (
-          <div className="col-md-4 mb-3" key={i}>
-            <div className="card h-100 shadow-sm border-0 p-3">
-              <h6 className="fw-semibold">{rec.title}</h6>
-              <p className="text-muted mb-1">{rec.reason}</p>
-              <span className="badge bg-warning text-dark">
-                Match Score: {rec.score}%
-              </span>
+        {/* FORM CARD */}
+        <div
+          className="card border-0 shadow-lg p-4 mb-5"
+          style={{ borderRadius: "16px" }}
+        >
+          <div className="row g-3">
+
+            <div className="col-12 col-md-6">
+              <label className="form-label">Target Role</label>
+              <input
+                className="form-control"
+                style={inputStyle}
+                name="role"
+                placeholder="Frontend Developer"
+                value={form.role}
+                onChange={handleChange}
+              />
             </div>
+
+            <div className="col-12 col-md-6">
+              <label className="form-label">Skills</label>
+              <input
+                className="form-control"
+                style={inputStyle}
+                name="skills"
+                placeholder="React, AWS, Node"
+                value={form.skills}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="col-12 col-md-4">
+              <label className="form-label">Experience</label>
+              <select
+                className="form-select"
+                style={inputStyle}
+                name="experience"
+                value={form.experience}
+                onChange={handleChange}
+              >
+                <option value="">Select</option>
+                <option>Beginner</option>
+                <option>Intermediate</option>
+                <option>Advanced</option>
+              </select>
+            </div>
+
+            <div className="col-12 col-md-4">
+              <label className="form-label">Interests</label>
+              <input
+                className="form-control"
+                style={inputStyle}
+                name="interests"
+                placeholder="Web, AI, Cloud"
+                value={form.interests}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="col-12 col-md-4">
+              <label className="form-label">Career Goal</label>
+              <input
+                className="form-control"
+                style={inputStyle}
+                name="goal"
+                placeholder="Startup, Full-time role"
+                value={form.goal}
+                onChange={handleChange}
+              />
+            </div>
+
           </div>
-        ))}
+
+          {/* BUTTON */}
+          <button
+            className="btn w-100 mt-4"
+            onClick={getRecommendations}
+            disabled={loading}
+            style={{
+              background: "linear-gradient(135deg, #6366f1, #06b6d4)",
+              color: "white",
+              fontWeight: "600",
+              padding: "12px",
+              border: "none",
+            }}
+          >
+            {loading ? "Analyzing with AI..." : "✨ Get AI Recommendations"}
+          </button>
+        </div>
+
+        {/* RESULTS */}
+        <div className="row">
+
+          {recommendations.length === 0 && !loading && (
+            <p className="text-center" style={{ color: "#64748b" }}>
+              Your personalized recommendations will appear here ✨
+            </p>
+          )}
+
+          {recommendations.map((rec, i) => (
+            <div className="col-12 col-md-6 col-lg-4 mb-4" key={i}>
+              <div
+                className="card h-100 border-0 shadow-sm p-3"
+                style={{ borderRadius: "12px" }}
+              >
+                <h6 className="fw-bold" style={{ color: "#1e293b" }}>
+                  {rec.title}
+                </h6>
+
+                <p style={{ color: "#64748b" }}>
+                  {rec.reason}
+                </p>
+
+                <span
+                  className="badge"
+                  style={{
+                    background: "#e0f2fe",
+                    color: "#0369a1",
+                    fontWeight: "500",
+                  }}
+                >
+                  Match: {rec.score}%
+                </span>
+              </div>
+            </div>
+          ))}
+
+        </div>
       </div>
     </div>
   );
 }
+
+/* INPUT STYLE */
+const inputStyle = {
+  backgroundColor: "#fff",
+  color: "#1e293b",
+  border: "1px solid #cbd5f5",
+  padding: "10px",
+  fontWeight: "500",
+};

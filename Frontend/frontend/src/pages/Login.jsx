@@ -19,11 +19,8 @@ export default function Login() {
       setError("");
 
       const res = await loginUser({ email, password });
-
-      // ✅ store token
       localStorage.setItem("token", res.data.token);
 
-      // ✅ redirect to Find Internships
       navigate("/find-internships");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
@@ -34,53 +31,90 @@ export default function Login() {
 
   return (
     <AuthLayout>
-      <div
-        className="card shadow p-4 auth-card"
-        style={{ maxWidth: "420px", width: "100%" }}
-      >
-        <h3 className="text-center mb-3">
-          <i className="bi bi-shield-lock-fill me-2"></i>
-          Welcome Back
-        </h3>
+      <div className="container d-flex justify-content-center align-items-center min-vh-100 px-3">
+        
+        <div
+          className="card border-0 shadow-lg p-4 p-md-5 w-100"
+          style={{
+            maxWidth: "420px",
+            borderRadius: "16px",
+            background: "rgba(255,255,255,0.9)",
+            backdropFilter: "blur(10px)"
+          }}
+        >
 
-        <p className="text-center text-muted mb-4">
-          Login to continue your AI internship journey
-        </p>
+          {/* HEADER */}
+          <div className="text-center mb-4">
+            <div
+              className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+              style={{
+                width: "60px",
+                height: "60px",
+                background: "linear-gradient(135deg, #6366f1, #06b6d4)",
+                color: "white"
+              }}
+            >
+              <i className="bi bi-robot fs-4"></i>
+            </div>
 
-        {error && <div className="alert alert-danger py-2">{error}</div>}
+            <h3 className="fw-bold mb-1">Welcome Back</h3>
+            <p className="text-muted small mb-0">
+              Continue your AI-powered internship journey
+            </p>
+          </div>
 
-        <Input
-          icon="bi-envelope"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <Input
-          icon="bi-lock"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <Button onClick={handleLogin} disabled={loading}>
-          {loading ? (
-            "Logging in..."
-          ) : (
-            <>
-              <i className="bi bi-box-arrow-in-right me-2"></i>
-              Login
-            </>
+          {/* ERROR */}
+          {error && (
+            <div className="alert alert-danger py-2 text-center small">
+              {error}
+            </div>
           )}
-        </Button>
 
-        <p className="text-center mt-3 mb-0 text-muted">
-          Don’t have an account?{" "}
-          <a href="/register" className="text-decoration-none fw-semibold">
-            Register
-          </a>
-        </p>
+          {/* INPUTS */}
+          <div className="mb-3">
+            <Input
+              icon="bi-envelope"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div className="mb-3">
+            <Input
+              icon="bi-lock"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          {/* BUTTON */}
+          <Button onClick={handleLogin} disabled={loading}>
+            {loading ? (
+              "Logging in..."
+            ) : (
+              <>
+                <i className="bi bi-box-arrow-in-right me-2"></i>
+                Login
+              </>
+            )}
+          </Button>
+
+          {/* FOOTER */}
+          <p className="text-center mt-4 mb-0 small text-muted">
+            Don’t have an account?{" "}
+            <span
+              onClick={() => navigate("/register")}
+              className="fw-semibold text-primary"
+              style={{ cursor: "pointer" }}
+            >
+              Register
+            </span>
+          </p>
+
+        </div>
       </div>
     </AuthLayout>
   );

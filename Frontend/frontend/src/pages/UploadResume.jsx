@@ -13,7 +13,6 @@ export default function UploadResume() {
     Authorization: `Bearer ${token}`,
   };
 
-  // Fetch resume metadata
   useEffect(() => {
     fetchResumeMeta();
   }, []);
@@ -25,12 +24,11 @@ export default function UploadResume() {
         { headers }
       );
       setResumeMeta(res.data);
-    } catch (err) {
+    } catch {
       setResumeMeta(null);
     }
   };
 
-  // Upload / Replace Resume
   const handleUpload = async (e) => {
     e.preventDefault();
 
@@ -60,18 +58,17 @@ export default function UploadResume() {
       setFile(null);
       fetchResumeMeta();
     } catch (err) {
-      setMessage(
-        err.response?.data?.message || "Upload failed. Try again."
-      );
+      setMessage(err.response?.data?.message || "Upload failed.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Delete Resume
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete your resume?"))
-      return;
+    const confirmDelete = window.confirm(
+      "⚠️ Delete your resume permanently?"
+    );
+    if (!confirmDelete) return;
 
     try {
       const res = await axios.delete(
@@ -81,12 +78,11 @@ export default function UploadResume() {
 
       setMessage(res.data.message);
       setResumeMeta(null);
-    } catch (err) {
-      setMessage("Delete failed. Try again.");
+    } catch {
+      setMessage("Delete failed.");
     }
   };
 
-  // View Resume
   const handleView = () => {
     window.open(
       "http://localhost:5000/users/resume",
@@ -97,59 +93,82 @@ export default function UploadResume() {
   const resumeExists = resumeMeta && resumeMeta.fileName;
 
   return (
-    <div className="container mt-5">
-      <div className="card shadow p-4">
-        <h3 className="mb-4 text-center">Resume Manager</h3>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #eef2ff, #e0f7fa, #f8fafc)",
+      }}
+    >
+      <div className="container py-5">
 
-        {message && (
-          <div
-            className={`alert ${
-              message.toLowerCase().includes("success")
-                ? "alert-success"
-                : "alert-danger"
-            }`}
-          >
-            {message}
-          </div>
-        )}
+        {/* HEADER */}
+        <div className="text-center mb-4">
+          <h3 className="fw-bold" style={{ color: "#1e293b" }}>
+            📄 Resume Manager
+          </h3>
+          <p style={{ color: "#64748b" }}>
+            Upload your resume to unlock AI-powered recommendations
+          </p>
+        </div>
 
-        {/* Resume Info */}
-        {resumeExists && (
-          <div className="mb-4">
-            <p><strong>File:</strong> {resumeMeta.fileName}</p>
+        {/* CARD */}
+        <div
+          className="card border-0 shadow-lg p-4"
+          style={{ borderRadius: "16px", maxWidth: "500px", margin: "auto" }}
+        >
 
-            <p>
-              <strong>Size:</strong>{" "}
-              {resumeMeta.size
-                ? (resumeMeta.size / 1024).toFixed(2) + " KB"
-                : "Unknown"}
-            </p>
+          {/* MESSAGE */}
+          {message && (
+            <div
+              className={`alert ${
+                message.toLowerCase().includes("success")
+                  ? "alert-success"
+                  : "alert-danger"
+              } text-center`}
+            >
+              {message}
+            </div>
+          )}
 
-            <p>
-              <strong>Uploaded:</strong>{" "}
-              {resumeMeta.uploadedAt
-                ? new Date(resumeMeta.uploadedAt).toLocaleString()
-                : "Unknown"}
-            </p>
-          </div>
-        )}
+          {/* FILE INFO */}
+          {resumeExists && (
+            <div className="mb-4 p-3 bg-light rounded">
+              <p className="mb-1">
+                <strong>📁 File:</strong> {resumeMeta.fileName}
+              </p>
+              <p className="mb-1">
+                <strong>📦 Size:</strong>{" "}
+                {resumeMeta.size
+                  ? (resumeMeta.size / 1024).toFixed(2) + " KB"
+                  : "Unknown"}
+              </p>
+              <p className="mb-0">
+                <strong>⏱ Uploaded:</strong>{" "}
+                {resumeMeta.uploadedAt
+                  ? new Date(resumeMeta.uploadedAt).toLocaleString()
+                  : "Unknown"}
+              </p>
+            </div>
+          )}
 
-        {/* Upload / Replace Form */}
-        <form onSubmit={handleUpload} className="mb-3">
-          <div className="mb-3">
+          {/* UPLOAD */}
+          <form onSubmit={handleUpload} className="mb-3">
             <input
               type="file"
-              className="form-control"
+              className="form-control mb-3"
               accept=".pdf,.doc,.docx"
               onChange={(e) => setFile(e.target.files[0])}
             />
-          </div>
 
-          <div className="d-grid">
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn w-100"
               disabled={loading}
+              style={{
+                background: "linear-gradient(135deg, #6366f1, #06b6d4)",
+                color: "white",
+                fontWeight: "600",
+              }}
             >
               {loading
                 ? "Uploading..."
@@ -157,27 +176,37 @@ export default function UploadResume() {
                 ? "Replace Resume"
                 : "Upload Resume"}
             </button>
-          </div>
-        </form>
+          </form>
 
-        {/* View / Delete Buttons */}
-        {resumeExists && (
-          <div className="d-flex gap-2">
-            <button
-              className="btn btn-success w-100"
-              onClick={handleView}
-            >
-              View Resume
-            </button>
+          {/* ACTIONS */}
+          {resumeExists && (
+            <div className="d-flex gap-2 mt-3">
 
-            <button
-              className="btn btn-danger w-100"
-              onClick={handleDelete}
-            >
-              Delete Resume
-            </button>
-          </div>
-        )}
+              <button
+                className="btn w-100"
+                style={{
+                  background: "#10b981",
+                  color: "white",
+                }}
+                onClick={handleView}
+              >
+                👁 View
+              </button>
+
+              <button
+                className="btn w-100"
+                style={{
+                  background: "#ef4444",
+                  color: "white",
+                }}
+                onClick={handleDelete}
+              >
+                🗑 Delete
+              </button>
+
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
