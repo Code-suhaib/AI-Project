@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "../api/axios";
 
 export default function Recommendations() {
@@ -13,6 +13,26 @@ export default function Recommendations() {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // 🔥 AUTO-FILL SKILLS FROM BACKEND
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const res = await axios.get("/users/resume/meta");
+
+        if (res.data?.extractedSkills?.length) {
+          setForm((prev) => ({
+            ...prev,
+            skills: res.data.extractedSkills.join(", "),
+          }));
+        }
+      } catch {
+        // ignore silently
+      }
+    };
+
+    fetchSkills();
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -35,7 +55,7 @@ export default function Recommendations() {
       });
 
       setRecommendations(res.data.recommendations || []);
-    } catch (err) {
+    } catch {
       setError("AI recommendation failed. Try again.");
     } finally {
       setLoading(false);
@@ -43,23 +63,30 @@ export default function Recommendations() {
   };
 
   return (
-    <div className="container py-5">
-      <div className="text-center mb-4">
-        <h2 className="fw-bold">
-          <i className="bi bi-stars me-2 text-warning"></i>
-          AI Internship Recommendations
-        </h2>
-        <p className="text-muted">
-          Personalized suggestions powered by Amazon Bedrock
-        </p>
-      </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #eef2ff, #e0f7fa, #f8fafc)",
+      }}
+    >
+      <div className="container py-5">
+
+        {/* HEADER */}
+        <div className="text-center mb-5">
+          <h2 className="fw-bold" style={{ color: "#1e293b" }}>
+            🤖 AI Internship Recommendations
+          </h2>
+          <p style={{ color: "#64748b" }}>
+            Smart suggestions based on your resume & skills
+          </p>
+        </div>
 
         {/* ERROR */}
         {error && (
           <div className="alert alert-danger text-center">{error}</div>
         )}
 
-        {/* FORM CARD */}
+        {/* FORM */}
         <div
           className="card border-0 shadow-lg p-4 mb-5"
           style={{ borderRadius: "16px" }}
@@ -79,7 +106,9 @@ export default function Recommendations() {
             </div>
 
             <div className="col-12 col-md-6">
-              <label className="form-label">Skills</label>
+              <label className="form-label">
+                Skills ⚡ (Auto-filled from resume)
+              </label>
               <input
                 className="form-control"
                 style={inputStyle}
@@ -149,13 +178,13 @@ export default function Recommendations() {
           </button>
         </div>
 
-      {/* Results */}
-      <div className="row">
-        {recommendations.length === 0 && !loading && (
-          <p className="text-muted text-center">
-            Your personalized recommendations will appear here ✨
-          </p>
-        )}
+        {/* RESULTS */}
+        <div className="row">
+          {!loading && recommendations.length === 0 && (
+            <p className="text-center" style={{ color: "#64748b" }}>
+              Your personalized recommendations will appear here ✨
+            </p>
+          )}
 
           {recommendations.map((rec, i) => (
             <div className="col-12 col-md-6 col-lg-4 mb-4" key={i}>
@@ -176,7 +205,6 @@ export default function Recommendations() {
                   style={{
                     background: "#e0f2fe",
                     color: "#0369a1",
-                    fontWeight: "500",
                   }}
                 >
                   Match: {rec.score}%
@@ -184,14 +212,13 @@ export default function Recommendations() {
               </div>
             </div>
           ))}
-
         </div>
+
       </div>
     </div>
   );
 }
 
-/* INPUT STYLE */
 const inputStyle = {
   backgroundColor: "#fff",
   color: "#1e293b",
