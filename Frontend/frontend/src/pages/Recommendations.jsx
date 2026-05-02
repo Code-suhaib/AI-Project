@@ -43,23 +43,16 @@ export default function Recommendations() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #eef2ff, #e0f7fa, #f8fafc)",
-      }}
-    >
-      <div className="container py-5">
-
-        {/* HEADER */}
-        <div className="text-center mb-5">
-          <h2 className="fw-bold" style={{ color: "#1e293b" }}>
-            🤖 AI Internship Recommendations
-          </h2>
-          <p style={{ color: "#64748b" }}>
-            Smart suggestions powered by AI based on your profile
-          </p>
-        </div>
+    <div className="container py-5">
+      <div className="text-center mb-4">
+        <h2 className="fw-bold">
+          <i className="bi bi-stars me-2 text-warning"></i>
+          AI Internship Recommendations
+        </h2>
+        <p className="text-muted">
+          Personalized suggestions powered by Amazon Bedrock
+        </p>
+      </div>
 
         {/* ERROR */}
         {error && (
@@ -156,14 +149,13 @@ export default function Recommendations() {
           </button>
         </div>
 
-        {/* RESULTS */}
-        <div className="row">
-
-          {recommendations.length === 0 && !loading && (
-            <p className="text-center" style={{ color: "#64748b" }}>
-              Your personalized recommendations will appear here ✨
-            </p>
-          )}
+      {/* Results */}
+      <div className="row">
+        {recommendations.length === 0 && !loading && (
+          <p className="text-muted text-center">
+            Your personalized recommendations will appear here ✨
+          </p>
+        )}
 
           {recommendations.map((rec, i) => (
             <div className="col-12 col-md-6 col-lg-4 mb-4" key={i}>
