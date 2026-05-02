@@ -50,6 +50,11 @@ const userSchema = new mongoose.Schema(
         type: Date,
       },
     },
+    
+    extractedSkills: {
+  type: [String],
+  default: [],
+},
 
     // ✅ Resume file stored in MongoDB
     resumeFile: {
