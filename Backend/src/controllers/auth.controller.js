@@ -2,10 +2,7 @@ import User from "../models/User.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-/**
- * @desc   Register new user
- * @route  POST /auth/register
- */
+// REGISTER
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -17,6 +14,7 @@ export const registerUser = async (req, res) => {
     }
 
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
       return res.status(400).json({
         message: "User already exists",
@@ -32,25 +30,26 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "User registered successfully",
       userId: user._id,
     });
+
   } catch (error) {
     console.error("Register error:", error);
-    res.status(500).json({
+
+    return res.status(500).json({
       message: "Server error",
     });
   }
 };
 
-/**
- * @desc   Login user
- * @route  POST /auth/login
- */
+// LOGIN
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    console.log("Login attempt:", email);
 
     if (!email || !password) {
       return res.status(400).json({
@@ -59,6 +58,9 @@ export const loginUser = async (req, res) => {
     }
 
     const user = await User.findOne({ email });
+
+    console.log("User found:", !!user);
+
     if (!user) {
       return res.status(400).json({
         message: "Invalid credentials",
@@ -66,11 +68,16 @@ export const loginUser = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
+
+    console.log("Password match:", isMatch);
+
     if (!isMatch) {
       return res.status(400).json({
         message: "Invalid credentials",
       });
     }
+
+    console.log("JWT_SECRET INSIDE LOGIN =", process.env.JWT_SECRET);
 
     const token = jwt.sign(
       { id: user._id },
@@ -78,14 +85,21 @@ export const loginUser = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    res.json({
+    console.log("Token generated successfully");
+
+    return res.status(200).json({
+      success: true,
       message: "Login successful",
       token,
     });
+
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({
-      message: "Server error",
+    console.error(error.stack);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };

@@ -38,29 +38,43 @@ export default function Recommendations() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const getRecommendations = async () => {
-    if (!form.skills || !form.role) {
-      setError("Role and skills are required");
-      return;
-    }
+ const getRecommendations = async () => {
+  if (!form.skills || !form.role) {
+    setError("Role and skills are required");
+    return;
+  }
 
-    try {
-      setLoading(true);
-      setError("");
-      setRecommendations([]);
+  try {
+    setLoading(true);
+    setError("");
+    setRecommendations([]);
 
-      const res = await axios.post("/recommendations/ai", {
-        ...form,
-        skills: form.skills.split(",").map((s) => s.trim()),
-      });
+    const res = await axios.post("/recommendations/ai", {
+      role: form.role,
+      skills: form.skills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
 
-      setRecommendations(res.data.recommendations || []);
-    } catch {
-      setError("AI recommendation failed. Try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+      experience: form.experience,
+      interests: form.interests,
+      goal: form.goal,
+    });
+
+    console.log("AI Response:", res.data);
+
+    setRecommendations(res.data.recommendations || []);
+  } catch (err) {
+    console.error("AI ERROR:", err.response?.data || err.message);
+
+    setError(
+      err.response?.data?.message ||
+      "AI recommendation failed"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div
@@ -186,32 +200,38 @@ export default function Recommendations() {
             </p>
           )}
 
-          {recommendations.map((rec, i) => (
-            <div className="col-12 col-md-6 col-lg-4 mb-4" key={i}>
-              <div
-                className="card h-100 border-0 shadow-sm p-3"
-                style={{ borderRadius: "12px" }}
-              >
-                <h6 className="fw-bold" style={{ color: "#1e293b" }}>
-                  {rec.title}
-                </h6>
+   {recommendations.map((job, i) => (
+  <div className="col-12 col-md-6 col-lg-4 mb-4" key={i}>
+    <div
+      className="card h-100 border-0 shadow-sm p-3"
+      style={{ borderRadius: "12px" }}
+    >
+      <h5 className="fw-bold mb-2">
+        {job.job_title || "Internship"}
+      </h5>
 
-                <p style={{ color: "#64748b" }}>
-                  {rec.reason}
-                </p>
+      <p className="mb-2 text-primary fw-semibold">
+        {job.employer_name || "Unknown Company"}
+      </p>
 
-                <span
-                  className="badge"
-                  style={{
-                    background: "#e0f2fe",
-                    color: "#0369a1",
-                  }}
-                >
-                  Match: {rec.score}%
-                </span>
-              </div>
-            </div>
-          ))}
+      <p className="text-muted small">
+        📍 {job.job_city || "Remote"}{" "}
+        {job.job_country || ""}
+      </p>
+
+      <div className="mt-3">
+        <a
+          href={job.job_apply_link}
+          target="_blank"
+          rel="noreferrer"
+          className="btn btn-primary w-100"
+        >
+          Apply Now
+        </a>
+      </div>
+    </div>
+  </div>
+))}
         </div>
 
       </div>

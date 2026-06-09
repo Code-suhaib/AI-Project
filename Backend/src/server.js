@@ -1,5 +1,8 @@
 import dotenv from "dotenv";
+
 dotenv.config({ path: "./.env" });
+
+console.log("JWT_SECRET =", process.env.JWT_SECRET);
 
 import app from "./app.js";
 import connectDB from "./config/db.js";
@@ -7,7 +10,7 @@ import connectDB from "./config/db.js";
 console.log("🔥 ENV CHECK:", {
   RAPIDAPI_KEY: process.env.RAPIDAPI_KEY ? "✅ Loaded" : "❌ Missing",
   RAPIDAPI_HOST: process.env.RAPIDAPI_HOST,
-  RAPIDAPI_URL: process.env.RAPIDAPI_URL
+  RAPIDAPI_URL: process.env.RAPIDAPI_URL,
 });
 
 connectDB();

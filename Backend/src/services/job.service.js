@@ -1,39 +1,68 @@
 import axios from "axios";
 
-console.log("RAPID KEY =>", process.env.RAPIDAPI_KEY);
-
-export const fetchInternships = async ({ role, skills, location } = {}) => {
+export const fetchInternships = async ({
+  role = "intern",
+  skills = [],
+  location = "remote",
+} = {}) => {
   try {
-    const query = `${role || ""} ${(skills || []).join(" ")}`.trim();
+    const query = `${role} ${skills.join(" ")}`.trim();
 
-    console.log("🌐 RapidAPI ENV CHECK:", {
-      key: !!process.env.RAPIDAPI_KEY,
-      host: process.env.RAPID_API_HOST,
-      url: process.env.RAPID_API_URL,
-      query,
-    });
+    console.log("=================================");
+    console.log("🌐 RapidAPI ENV CHECK");
+    console.log("=================================");
+    console.log("KEY:", process.env.RAPIDAPI_KEY ? "✅ Loaded" : "❌ Missing");
+    console.log("HOST:", process.env.RAPIDAPI_HOST);
+    console.log("URL:", process.env.RAPIDAPI_URL);
+    console.log("QUERY:", query);
+    console.log("LOCATION:", location);
+    console.log("=================================");
 
-    const response = await axios.get(process.env.RAPID_API_URL, {
+    if (!process.env.RAPIDAPI_URL) {
+      throw new Error("RAPIDAPI_URL is missing in .env");
+    }
+
+    if (!process.env.RAPIDAPI_HOST) {
+      throw new Error("RAPIDAPI_HOST is missing in .env");
+    }
+
+    if (!process.env.RAPIDAPI_KEY) {
+      throw new Error("RAPIDAPI_KEY is missing in .env");
+    }
+
+    const response = await axios.get(process.env.RAPIDAPI_URL, {
       headers: {
         "X-RapidAPI-Key": process.env.RAPIDAPI_KEY,
-        "X-RapidAPI-Host": process.env.RAPID_API_HOST,
+        "X-RapidAPI-Host": process.env.RAPIDAPI_HOST,
       },
       params: {
         query,
-        experienceLevels: "intern;entry;associate;midSenior;director",
-        workplaceTypes: "remote;hybrid;onSite",
-        location: location || "remote",
-        datePosted: "month",
-        employmentTypes: "contractor;fulltime;parttime;intern;temporary",
+        page: "1",
+        num_pages: "1",
+        location,
       },
+      timeout: 15000,
     });
 
-    return response.data?.data || [];
+    const jobs = response.data?.data || [];
+
+    console.log(`✅ Found ${jobs.length} jobs`);
+
+    return jobs;
   } catch (error) {
-    console.error(
-      "🔥 RapidAPI FAILED:",
-      error.response?.data || error.message
-    );
-    throw error;
+    console.error("=================================");
+    console.error("🔥 RapidAPI FAILED");
+    console.error("=================================");
+
+    if (error.response) {
+      console.error("Status:", error.response.status);
+      console.error("Data:", error.response.data);
+    } else {
+      console.error(error.message);
+    }
+
+    console.error("=================================");
+
+    return [];
   }
 };

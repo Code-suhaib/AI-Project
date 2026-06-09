@@ -1,24 +1,33 @@
 import { Router } from "express";
 import authMiddleware from "../middleware/auth.middleware.js";
 
-import { recommendInternships } from "../controllers/recommendation.controller.js";
+import {
+  getRandomRecommendations,
+  getAIRecommendations,
+} from "../controllers/recommendation.controller.js";
 
 const router = Router();
 
-router.get("/", recommendInternships);
 
-// 🔮 AI Recommendation – placeholder
-router.post("/ai", authMiddleware, async (req, res) => {
-  try {
-    res.json({
-      message: "AI recommendation pipeline ready ✅",
-      userId: req.user.id
-    });
-  } catch (err) {
-    console.error("AI route error:", err);
-    res.status(500).json({ message: "AI route failed" });
-  }
-});
+// =====================================
+// ⚡ RANDOM RECOMMENDATIONS
+// GET /api/recommendations
+// =====================================
+router.get(
+  "/",
+  authMiddleware,
+  getRandomRecommendations
+);
 
+
+// =====================================
+// 🤖 AI RECOMMENDATIONS
+// POST /api/recommendations/ai
+// =====================================
+router.post(
+  "/ai",
+  authMiddleware,
+  getAIRecommendations
+);
 
 export default router;

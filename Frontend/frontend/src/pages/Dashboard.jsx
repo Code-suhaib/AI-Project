@@ -14,29 +14,42 @@ export default function Dashboard() {
   const isFormValid = skills.trim().length > 0;
 
   const fetchInternships = async () => {
-    if (!isFormValid) {
-      setError("Please enter at least one skill");
-      return;
-    }
+  if (!isFormValid) {
+    setError("Please enter at least one skill");
+    return;
+  }
 
-    try {
-      setLoading(true);
-      setError("");
-      setJobs([]);
+  try {
+    setLoading(true);
+    setError("");
+    setJobs([]);
 
-      const res = await axios.post("/internships/search", {
-        role: role.trim() || "intern",
-        skills: skills.split(",").map((s) => s.trim()).filter(Boolean),
-        location: "remote",
-      });
+    const res = await axios.post("/internships/search", {
+      role: role.trim() || "intern",
+      skills: skills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      location: "remote",
+    });
 
-      setJobs(res.data.jobs || []);
-    } catch (err) {
-      setError("Failed to fetch internships");
-    } finally {
-      setLoading(false);
-    }
-  };
+    console.log("✅ Internship Response:", res.data);
+
+    alert(`Found ${res.data?.jobs?.length || 0} internships`);
+
+    setJobs(Array.isArray(res.data?.jobs) ? res.data.jobs : []);
+  } catch (err) {
+    console.error("❌ Internship Error:", err);
+
+    setError(
+      err.response?.data?.message ||
+      err.message ||
+      "Failed to fetch internships"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div

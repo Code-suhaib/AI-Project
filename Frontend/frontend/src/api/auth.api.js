@@ -1,16 +1,59 @@
 import api from "./axios";
 
-export const registerUser = (data) =>
-  api.post("/auth/register", data);
+// ==============================
+// 🔐 AUTH APIs
+// ==============================
 
-export const loginUser = (data) =>
-  api.post("/auth/login", data);
+export const registerUser = async (data) => {
+  const res = await api.post("/auth/register", data);
+  return res.data;
+};
 
-export const getProfile = () =>
-  api.get("/users/me");
+export const loginUser = async (data) => {
+  const res = await api.post("/auth/login", data);
 
-export const updateProfile = (data) =>
-  api.put("/users/profile", data);
+  // Save token
+  if (res.data.token) {
+    localStorage.setItem("token", res.data.token);
+  }
 
-export const getRecommendations = () =>
-  api.get("/recommendations");
+  return res.data;
+};
+
+
+// ==============================
+// 👤 USER APIs
+// ==============================
+
+export const getProfile = async () => {
+  const res = await api.get("/users/me");
+  return res.data;
+};
+
+export const updateProfile = async (data) => {
+  const res = await api.put("/users/profile", data);
+  return res.data;
+};
+
+
+// ==============================
+// 🤖 AI RECOMMENDATION API
+// ==============================
+
+export const getRecommendations = async (resumeText) => {
+  const res = await api.post("/recommendations", {
+    resumeText,
+  });
+
+  return res.data;
+};
+
+
+// ==============================
+// 🔓 LOGOUT
+// ==============================
+
+export const logoutUser = () => {
+  localStorage.removeItem("token");
+  window.location.href = "/login";
+};

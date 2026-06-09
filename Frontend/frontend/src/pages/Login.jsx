@@ -18,10 +18,16 @@ export default function Login() {
       setLoading(true);
       setError("");
 
-      const res = await loginUser({ email, password });
-      localStorage.setItem("token", res.data.token);
+     const res = await loginUser({ email, password });
 
-      navigate("/find-internships");
+console.log("Login response:", res);
+
+if (res.token) {
+  localStorage.setItem("token", res.token);
+  navigate("/find-internships");
+} else {
+  setError("Token not received");
+}
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     } finally {
