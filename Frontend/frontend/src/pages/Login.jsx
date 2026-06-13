@@ -64,7 +64,7 @@ if (res.token) {
             </div>
 
             <h3 className="fw-bold mb-1">Welcome Back</h3>
-            <p className="text-muted small mb-0">
+            <p className="text-bold small mb-0">
               Continue your AI-powered internship journey
             </p>
           </div>

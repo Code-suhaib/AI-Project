@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const OLLAMA_URL = "http://127.0.0.1:11434/api/generate";
-const MODEL = "phi3:mini";
+const MODEL = "qwen2.5:7b";
 
 
 // ==============================
@@ -96,43 +96,118 @@ export const cleanSkills = (aiResponse) => {
 // 🔹 3. AI RANK INTERNSHIPS
 // ==============================
 
-export const rankInternshipsAI = async (skills, internships) => {
+export const rankInternshipsAI = async (
+  profile,
+  internships
+) => {
   try {
-    const limited = internships.slice(0, 5); // 🔥 keep small
 
-    const res = await axios.post(OLLAMA_URL, {
-      model: MODEL,
-      prompt: `
-You are an AI career assistant.
+    const simplifiedJobs = internships.map((job) => ({
+      job_title: job.job_title || "",
+      employer_name: job.employer_name || "",
+      location: `${job.job_city || ""} ${job.job_country || ""}`.trim(),
+      apply_link: job.job_apply_link || "",
+    }));
+
+    const prompt = `
+You are an AI internship advisor.
+
+Candidate Profile:
+
+Role:
+${profile.role || ""}
 
 Skills:
-${JSON.stringify(skills)}
+${(profile.skills || []).join(", ")}
+
+Experience:
+${profile.experience || ""}
+
+Interests:
+${profile.interests || ""}
+
+Career Goal:
+${profile.goal || ""}
 
 Internships:
-${JSON.stringify(limited)}
 
-STRICT RULES:
-- Return ONLY JSON
-- No explanation
-- No markdown
-- No extra text
+${JSON.stringify(simplifiedJobs)}
 
-Format:
+Return ONLY valid JSON.
+
 {
   "recommendations":[
-    {"role":"","company":"","reason":""}
+    {
+      "job_title":"",
+      "employer_name":"",
+      "reason":"",
+      "score":95,
+      "job_apply_link":""
+    }
   ]
 }
 
-Select best 3–5 internships.
-      `,
-      stream: false,
-    });
+Choose the best 5 internships.
+
+Rules:
+- Higher score = better match
+- Score between 1 and 100
+- Return ONLY JSON
+- No markdown
+- No explanation
+- No text outside JSON
+- Sort highest score first
+`;
+
+    console.log("================================");
+    console.log("🤖 Sending request to Qwen");
+    console.log("Prompt Length:", prompt.length);
+    console.log("Jobs:", simplifiedJobs.length);
+    console.log("================================");
+
+    console.time("Qwen Response Time");
+
+    const res = await axios.post(
+      OLLAMA_URL,
+      {
+        model: MODEL,
+        prompt,
+        stream: false,
+      },
+      {
+        timeout: 180000, // 3 min
+      }
+    );
+
+    console.timeEnd("Qwen Response Time");
+
+    console.log("================================");
+    console.log("✅ Qwen Response Received");
+    console.log("================================");
+
+    if (!res.data?.response) {
+      console.error("❌ Empty response from Qwen");
+      return null;
+    }
 
     return res.data.response;
 
   } catch (err) {
-    console.error("❌ Ranking error:", err.response?.data || err.message);
+
+    console.log("================================");
+    console.log("❌ QWEN ERROR");
+    console.log("================================");
+
+    if (err.response) {
+      console.error("Status:", err.response.status);
+      console.error(err.response.data);
+    } else if (err.request) {
+      console.error("No response received");
+      console.error(err.message);
+    } else {
+      console.error(err.message);
+    }
+
     return null;
   }
 };
@@ -142,27 +217,23 @@ Select best 3–5 internships.
 // 🔹 4. CLEAN RANKING OUTPUT
 // ==============================
 
-export const cleanRecommendations = (aiResponse) => {
+export const cleanRecommendations = (response) => {
   try {
-    if (!aiResponse) return [];
+    if (!response) return [];
 
-    const match = aiResponse.match(/\{[\s\S]*?\}/);
+    const match = response.match(/\{[\s\S]*\}/);
 
     if (!match) return [];
 
-    let jsonString = match[0];
-
-    jsonString = jsonString
-      .replace(/,\s*}/g, "}")
-      .replace(/\n/g, "")
-      .replace(/\t/g, "");
-
-    const parsed = JSON.parse(jsonString);
+    const parsed = JSON.parse(match[0]);
 
     return parsed.recommendations || [];
-
   } catch (err) {
-    console.error("❌ Recommendation parsing error:", err.message);
+    console.error(
+      "❌ Recommendation Parse Error:",
+      err.message
+    );
+
     return [];
   }
 };

@@ -6,57 +6,78 @@ export const fetchInternships = async ({
   location = "remote",
 } = {}) => {
   try {
-    const query = `${role} ${skills.join(" ")}`.trim();
+
+    // Only search using role
+    const query = role?.trim() || "intern";
 
     console.log("=================================");
-    console.log("🌐 RapidAPI ENV CHECK");
+    console.log("🌐 RapidAPI REQUEST");
     console.log("=================================");
-    console.log("KEY:", process.env.RAPIDAPI_KEY ? "✅ Loaded" : "❌ Missing");
-    console.log("HOST:", process.env.RAPIDAPI_HOST);
-    console.log("URL:", process.env.RAPIDAPI_URL);
     console.log("QUERY:", query);
     console.log("LOCATION:", location);
     console.log("=================================");
 
-    if (!process.env.RAPIDAPI_URL) {
-      throw new Error("RAPIDAPI_URL is missing in .env");
+    const response = await axios.get(
+      process.env.RAPIDAPI_URL,
+      {
+        headers: {
+          "X-RapidAPI-Key":
+            process.env.RAPIDAPI_KEY,
+          "X-RapidAPI-Host":
+            process.env.RAPIDAPI_HOST,
+        },
+
+        params: {
+          query,
+          page: "1",
+          num_pages: "1",
+        },
+
+        timeout: 15000,
+      }
+    );
+
+    const jobs =
+      response?.data?.data ||
+      response?.data?.jobs ||
+      [];
+
+    console.log(
+      `✅ RapidAPI Returned ${jobs.length} jobs`
+    );
+
+    if (jobs.length > 0) {
+      console.log(
+        "FIRST JOB SAMPLE:"
+      );
+      console.log(
+        JSON.stringify(
+          jobs[0],
+          null,
+          2
+        )
+      );
     }
-
-    if (!process.env.RAPIDAPI_HOST) {
-      throw new Error("RAPIDAPI_HOST is missing in .env");
-    }
-
-    if (!process.env.RAPIDAPI_KEY) {
-      throw new Error("RAPIDAPI_KEY is missing in .env");
-    }
-
-    const response = await axios.get(process.env.RAPIDAPI_URL, {
-      headers: {
-        "X-RapidAPI-Key": process.env.RAPIDAPI_KEY,
-        "X-RapidAPI-Host": process.env.RAPIDAPI_HOST,
-      },
-      params: {
-        query,
-        page: "1",
-        num_pages: "1",
-        location,
-      },
-      timeout: 15000,
-    });
-
-    const jobs = response.data?.data || [];
-
-    console.log(`✅ Found ${jobs.length} jobs`);
 
     return jobs;
+
   } catch (error) {
+
     console.error("=================================");
-    console.error("🔥 RapidAPI FAILED");
+    console.error("🔥 JOB FETCH ERROR");
     console.error("=================================");
 
     if (error.response) {
-      console.error("Status:", error.response.status);
-      console.error("Data:", error.response.data);
+      console.error(
+        error.response.status
+      );
+      console.error(
+        JSON.stringify(
+          error.response.data,
+          null,
+          2
+        )
+      );
     } else {
       console.error(error.message);
     }

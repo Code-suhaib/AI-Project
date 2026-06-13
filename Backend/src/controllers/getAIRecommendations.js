@@ -1,90 +1,132 @@
-import { fetchInternships } from "../services/job.service.js";
-import {
-  extractSkillsAI,
-  cleanSkills,
-  rankInternshipsAI,
-  cleanRecommendations,
-} from "../services/aiService.js";
-
-
-// ==============================
-// 🤖 AI BASED RECOMMENDATIONS
-// ==============================
-
 export const getAIRecommendations = async (req, res) => {
   try {
-    const user = req.user;
-    const jobs = await fetchInternships();
+    const {
+      role = "",
+      skills = [],
+      experience = "",
+      interests = "",
+      goal = "",
+    } = req.body;
 
-    // ==============================
-    // 🔹 STEP 1: Get Skills
-    // ==============================
+    console.log("🤖 AI Request:");
+    console.log(req.body);
 
-    let skills = user?.skills || [];
+    // ==========================================
+    // FETCH INTERNSHIPS
+    // ==========================================
 
-    // If resume text exists → use AI
-    if (user?.resumeText) {
-      const rawSkills = await extractSkillsAI(user.resumeText);
-      const aiSkills = cleanSkills(rawSkills);
-
-      // fallback safety
-      if (aiSkills.length > 0) {
-        skills = aiSkills;
-      }
-    }
-
-    // ==============================
-    // 🔹 STEP 2: Keyword Filtering (FAST)
-    // ==============================
-
-    const keywords = [
-      ...skills,
-      ...(user?.interests || []),
-      "intern",
-      "developer",
-      "engineer",
-      "cloud",
-      "ai",
-    ]
-      .filter(Boolean)
-      .map((k) => k.toLowerCase());
-
-    const filteredJobs = jobs.filter((job) => {
-      const text = `
-        ${job.job_title || ""}
-        ${job.job_description || ""}
-      `.toLowerCase();
-
-      return keywords.some((keyword) => text.includes(keyword));
+    const jobs = await fetchInternships({
+      role,
+      skills,
+      location: "remote",
     });
 
-    // ==============================
-    // 🔥 STEP 3: LIMIT BEFORE AI
-    // ==============================
+    console.log(`✅ Found ${jobs.length} jobs`);
 
-    const limitedJobs = filteredJobs.slice(0, 5);
+    if (!jobs.length) {
+      return res.json({
+        type: "ai",
+        total: 0,
+        recommendations: [],
+      });
+    }
 
-    // ==============================
-    // 🧠 STEP 4: AI RANKING
-    // ==============================
+    // ==========================================
+    // LIMIT RESULTS
+    // ==========================================
 
-    const rawRank = await rankInternshipsAI(skills, limitedJobs);
-    const recommendations = cleanRecommendations(rawRank);
+    const limitedJobs = jobs.slice(0, 20);
 
-    // ==============================
-    // 📤 FINAL RESPONSE
-    // ==============================
+    // ==========================================
+    // SMART SCORING ENGINE
+    // ==========================================
 
-    res.json({
+    const rankedJobs = limitedJobs
+      .map((job) => {
+        let score = 0;
+
+        const text = JSON.stringify(job).toLowerCase();
+
+        // Skills Match
+        skills.forEach((skill) => {
+          if (
+            text.includes(
+              skill.toLowerCase()
+            )
+          ) {
+            score += 15;
+          }
+        });
+
+        // Role Match
+        if (
+          role &&
+          text.includes(role.toLowerCase())
+        ) {
+          score += 35;
+        }
+
+        // Interests Match
+        if (
+          interests &&
+          text.includes(
+            interests.toLowerCase()
+          )
+        ) {
+          score += 20;
+        }
+
+        // Goal Match
+        if (
+          goal &&
+          text.includes(goal.toLowerCase())
+        ) {
+          score += 20;
+        }
+
+        // Experience Bonus
+        if (
+          experience &&
+          text.includes(
+            experience.toLowerCase()
+          )
+        ) {
+          score += 10;
+        }
+
+        return {
+          ...job,
+
+          score: Math.min(score, 100),
+
+          reason:
+            score >= 80
+              ? "Excellent match for your profile and skills."
+              : score >= 60
+              ? "Strong match based on role and technical skills."
+              : score >= 40
+              ? "Moderate match with some relevant requirements."
+              : "Potential opportunity worth exploring.",
+        };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5);
+
+    console.log(
+      `✅ Ranked Jobs: ${rankedJobs.length}`
+    );
+
+    return res.json({
       type: "ai",
-      skills,
-      total: recommendations.length,
-      recommendations,
+      total: rankedJobs.length,
+      recommendations: rankedJobs,
     });
 
   } catch (error) {
-    console.error("❌ AI Recommendation error:", error);
-    res.status(500).json({
+    console.error("❌ AI Recommendation Error:");
+    console.error(error);
+
+    return res.status(500).json({
       message: "AI recommendation failed",
     });
   }
