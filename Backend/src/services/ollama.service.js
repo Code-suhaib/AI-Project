@@ -1,80 +1,148 @@
 import axios from "axios";
 
-// 🔹 Extract skills using Ollama
+// ==========================================
+// EXTRACT RESUME PROFILE USING QWEN
+// ==========================================
+
 export const extractSkillsAI = async (text) => {
   try {
-    const trimmedText = text.slice(0, 2500); // prevent overload
+    const trimmedText = text.slice(0, 2500);
 
     const res = await axios.post(
       "http://localhost:11434/api/generate",
       {
-        model: "phi3",
+        model: "qwen2.5:7b",
+
         prompt: `
 You are a strict JSON generator.
 
-Extract ONLY technical skills from the text.
+Analyze the resume and return ONLY valid JSON.
+
+Return EXACTLY this structure:
+
+{
+  "skills": [],
+  "suggestedRole": "",
+  "experienceLevel": "",
+  "projects": [],
+  "education": ""
+}
 
 Rules:
-- Return ONLY valid JSON
-- No explanation
-- No extra text
-- Output must start with { and end with }
+- Output ONLY JSON
+- No markdown
+- No explanations
+- No comments
+- Skills must contain only technical skills
+- suggestedRole must be an IT role
+- experienceLevel must be Beginner, Intermediate, or Advanced
+- projects must contain project names only
+- education must contain highest qualification found
 
-Format:
-{"skills": ["skill1", "skill2"]}
+Resume:
 
-Text:
 ${trimmedText}
         `,
+
         stream: false,
+      },
+      {
+        timeout: 120000,
       }
     );
 
     const output = res.data.response.trim();
 
-    console.log("🧠 RAW AI OUTPUT:", output); // debug
+    console.log("=================================");
+    console.log("🧠 RAW AI OUTPUT");
+    console.log("=================================");
+    console.log(output);
+    console.log("=================================");
 
     return output;
 
   } catch (err) {
-    console.error("Ollama error:", err.message);
+    console.error("=================================");
+    console.error("❌ OLLAMA ERROR");
+    console.error("=================================");
+    console.error(err.message);
+    console.error("=================================");
+
     return null;
   }
 };
 
-// 🔹 Clean + safely parse skills
+// ==========================================
+// CLEAN + PARSE PROFILE
+// ==========================================
+
 export const cleanSkills = (aiResponse) => {
   try {
-    if (!aiResponse) return [];
-
-    // ✅ Extract JSON from messy output
-    const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-
-    if (!jsonMatch) {
-      console.warn("⚠️ No JSON found in AI response");
-      return [];
+    if (!aiResponse) {
+      return {
+        skills: [],
+        suggestedRole: "",
+        experienceLevel: "",
+        projects: [],
+        education: "",
+      };
     }
 
-    const parsed = JSON.parse(jsonMatch[0]);
+    const match = aiResponse.match(/\{[\s\S]*\}/);
 
-    if (!parsed.skills || !Array.isArray(parsed.skills)) {
-      return [];
+    if (!match) {
+      console.warn("⚠️ No JSON found");
+
+      return {
+        skills: [],
+        suggestedRole: "",
+        experienceLevel: "",
+        projects: [],
+        education: "",
+      };
     }
 
-    // ✅ Clean each skill
-    const cleaned = parsed.skills.map((skill) =>
-      skill
-        .toLowerCase()
-        .split("(")[0]
-        .replace(/[^a-z0-9+#. ]/gi, "")
-        .trim()
-    );
+    const parsed = JSON.parse(match[0]);
 
-    // ✅ Remove duplicates
-    return [...new Set(cleaned)].filter(Boolean);
+    return {
+      skills: Array.isArray(parsed.skills)
+        ? [...new Set(
+            parsed.skills.map((skill) =>
+              skill
+                .toLowerCase()
+                .replace(/[^a-z0-9+#. ]/gi, "")
+                .trim()
+            )
+          )].filter(Boolean)
+        : [],
+
+      suggestedRole:
+        parsed.suggestedRole || "",
+
+      experienceLevel:
+        parsed.experienceLevel || "",
+
+      projects:
+        Array.isArray(parsed.projects)
+          ? parsed.projects
+          : [],
+
+      education:
+        parsed.education || "",
+    };
 
   } catch (err) {
-    console.error("❌ Skill parsing error:", err.message);
-    return [];
+    console.error(
+      "❌ Profile Parsing Error:",
+      err.message
+    );
+
+    return {
+      skills: [],
+      suggestedRole: "",
+      experienceLevel: "",
+      projects: [],
+      education: "",
+    };
   }
 };

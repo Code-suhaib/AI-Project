@@ -6,63 +6,107 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
     },
+
     password: {
       type: String,
       required: true,
     },
+
     role: {
       type: String,
       default: "user",
     },
+
     skills: {
       type: [String],
       default: [],
     },
+
     interests: {
       type: [String],
       default: [],
     },
 
-    // 👇 EXISTING (unchanged)
+    // ==========================================
+    // RESUME URL (Legacy)
+    // ==========================================
     resumeUrl: {
       type: String,
       default: null,
     },
 
-    // ✅ Resume metadata
+    // ==========================================
+    // RESUME METADATA
+    // ==========================================
     resumeMeta: {
       fileName: {
         type: String,
       },
+
       mimeType: {
         type: String,
       },
+
       size: {
         type: Number,
       },
+
       uploadedAt: {
         type: Date,
       },
     },
-    
-    extractedSkills: {
-  type: [String],
-  default: [],
-},
 
-    // ✅ Resume file stored in MongoDB
+    // ==========================================
+    // AI EXTRACTED SKILLS
+    // ==========================================
+    extractedSkills: {
+      type: [String],
+      default: [],
+    },
+
+    // ==========================================
+    // AI GENERATED RESUME PROFILE
+    // ==========================================
+    resumeProfile: {
+      suggestedRole: {
+        type: String,
+        default: "",
+      },
+
+      experienceLevel: {
+        type: String,
+        default: "",
+      },
+
+      projects: {
+        type: [String],
+        default: [],
+      },
+
+      education: {
+        type: String,
+        default: "",
+      },
+    },
+
+    // ==========================================
+    // RESUME FILE STORED IN MONGODB
+    // ==========================================
     resumeFile: {
       data: Buffer,
       contentType: String,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 const User = mongoose.model("User", userSchema);
